@@ -1,0 +1,124 @@
+name: deploy-aks
+on: [push]
+env:
+  REGISTRY_NAME: mmmazurepetstorecr
+  CLUSTER_NAME: mmm-petstore-aks
+  CLUSTER_RESOURCE_GROUP: dnd-petstore-rg
+  NAMESPACE: dev-petstore
+  SECRET: petstore-aks-secret
+ 
+
+jobs:
+  deploy-aks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Git Checkout'
+        uses: actions/checkout@v2
+
+      
+      # - uses: azure/setup-kubectl@v2.0
+
+      # - name: Set the target AKS cluster
+      #   uses: Azure/aks-set-context@v1
+      #   with:
+      #     creds: '{
+      #               "clientId": "a8ef05af-8d0a-48bc-af65-6fd67bc9214b",
+      #               "clientSecret": "4OI-FUEaIqPnfzztmEOlwm7MmLapvN_J3Z",
+      #               "subscriptionId": "e55f3ab9-8f34-416e-a2e0-4a77a6da1cc6",
+      #               "tenantId": "eff7f985-dc58-4935-a906-050609be85c3",
+      #               "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
+      #               "resourceManagerEndpointUrl": "https://management.azure.com/",
+      #               "activeDirectoryGraphResourceId": "https://graph.windows.net/",
+      #               "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/",
+      #               "galleryEndpointUrl": "https://gallery.azure.com/",
+      #               "managementEndpointUrl": "https://management.core.windows.net/"
+            
+      #             }'
+      #     cluster-name: ${{ env.CLUSTER_NAME }}
+      #     resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+
+      
+      # - name: Create namespace if doesn't exist
+      #   run: |
+      #     kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o json | kubectl apply -f -
+      
+      # - name: Create image pull secret for ACR
+      #   uses: Azure/k8s-create-secret@v1.1
+      #   with:
+      #     container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+      #     container-registry-username: "a8ef05af-8d0a-48bc-af65-6fd67bc9214b"
+      #     container-registry-password: "4OI-FUEaIqPnfzztmEOlwm7MmLapvN_J3Z"
+      #     namespace: ${{ env.NAMESPACE }}
+      #     secret-name: ${{ env.SECRET }}
+
+      # - name: Deploy to AKS
+      #   uses: Azure/k8s-deploy@v1
+      #   with:          
+      #     manifests: |
+      #       deployments/master/aks-petstoreorderservice.yml
+      #       deployments/master/aks-petstorepetservice.yml
+      #       deployments/master/aks-petstoreproductservice.yml
+      #       deployments/master/node-istio.yml
+      #     imagepullsecrets: |
+      #       ${{ env.SECRET }}
+      #     namespace: ${{ env.NAMESPACE }}
+     
+     
+      
+
+
+
+
+      
+
+
+     
+      # - name: Check deployment status 
+      #   run: |
+      #     kubectl get deployments -n ${{ env.NAMESPACE }}
+      #     kubectl get svc -n ${{ env.NAMESPACE }}
+      #     kubectl get vs -n ${{ env.NAMESPACE }}
+      
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+
+      - name: Install dependencies from requirements.txt
+        run: |  
+          python -m pip install --upgrade pip
+          pip install pytest 
+          pip install -r petstore-ui-auyo-test/requirements.txt
+          
+    
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+
+      - name: Make sure pytest is working
+        run: |
+          echo "def test_1(): pass" > nothing.py
+          pytest nothing.py
+
+      - name: Install Chrome and Firefox
+        run: |
+          sudo apt install google-chrome-stable
+          sudo apt-get install firefox
+     
+      - name: Test with pytest - 1
+        run: |
+          pytest -vv -rA petstore-ui-auyo-test/tests/store/petstore/test_petstore_welcome_page.py
+
+
+
+
+
+
+
+      
+
