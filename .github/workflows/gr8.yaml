@@ -1,4 +1,4 @@
-name: CI build
+name: MMM App Manager build
 
 on: [push]
 
