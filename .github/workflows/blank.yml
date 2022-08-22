@@ -1,12 +1,60 @@
-name: deploy-aks
-on: [push]
+rkflow file for this run
+.github/workflows/build.yml at de77d24
+name: App-MMM/mmm-apm-ui
+
+on:
+  push:
+    branches:
+    - master
+    - release
+    - release-20*
+    - do-not-merge
+  pull_request:
+    branches:
+    - master
+    - release
+    - release-20*
+
+  workflow_dispatch:
+    inputs:
+      message:
+        description: ''
+        required: false
+        default: ''
 env:
-  REGISTRY_NAME: mmmazurepetstorecr
-  CLUSTER_NAME: mmm-petstore-aks
-  CLUSTER_RESOURCE_GROUP: dnd-petstore-rg
-  NAMESPACE: dev-petstore
-  SECRET: petstore-aks-secret
- 
+  AFAAS_DOCKER_REGISTRY: ${{ secrets.AFAAS_DOCKER_REGISTRY }}
+  AFAAS_NPM_TOKEN: ${{ secrets.AFAAS_NPM_TOKEN }}
+  AFAAS_NPM_USER: ${{ secrets.AFAAS_NPM_USER }}
+  AFAAS_TOKEN: ${{ secrets.AFAAS_TOKEN }}
+  AFAAS_URL: ${{ secrets.AFAAS_URL }}
+  AFAAS_USER: ${{ secrets.AFAAS_USER }}
+  AFAAS_USER_NPM_TOKEN: ${{ secrets.AFAAS_USER_NPM_TOKEN }}
+  AFAAS_DOCKER_REGISTRY_REMOTE: ${{ secrets.AFAAS_DOCKER_REGISTRY_REMOTE }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  GHE_SERVER: ${{ secrets.GHE_SERVER }}
+  GHE_TOKEN: ${{ secrets.GHE_TOKEN }}
+  KYN_GHE_SERVER: ${{ secrets.KYN_GHE_SERVER }}  #github.kyndryl.net
+  KYN_GHE_TOKEN: ${{ secrets.KYN_GHE_TOKEN }}
+  PYPI_USER: ${{ secrets.PYPI_USER }}
+  PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  TRAVIS_ACCESS_TOKEN: ${{ secrets.TRAVIS_ACCESS_TOKEN }}
+  TRAVIS_BUILD_DIR: ${{ github.workspace }}
+  TRAVIS_REPO_SLUG: ${{ github.repository }}
+  TRAVIS_BRANCH: ${{ github.head_ref }}
+  TRAVIS_PULL_REQUEST: ${{ github.event.number }}
+  TRAVIS-false: true
+  node-version: 12.x
+  MARKUP_DIR: "projects"
+  LIB_UI_E2E_NAME: "mmm-apm-ui-test"
+  LIB_UI_NAME: "mmm-apm-ui"
+  PUBLISH: false
+  MULTI_TENANT_BY_ORG: true
+  DOCKER_IMAGE_NAME: "mmm-apm-ui"
+  DEV_SECOPS_HOST_TOKEN: ${{ secrets.DEV_SECOPS_HOST_TOKEN }}
 
 jobs:
   deploy-aks:
@@ -15,7 +63,14 @@ jobs:
     steps:
       - name: 'Git Checkout'
         uses: actions/checkout@v2
-
+      - name: Copy build tools and Run sonarqube
+        continue-on-error: true
+        run: |
+          curl -s -u "${AFAAS_USER}":"${AFAAS_TOKEN}" -X GET "${AFAAS_URL}"'/ibmcb-generic-local/BuildTools/get_build_tools.sh' | bash
+          chmod -R 777 travis-scripts
+          echo base branch ${BASE_BRANCH}
+          echo PR branch ${PULL_REQUEST_BRANCH}
+          echo event ${CURRENT_EVENT}
       
       # - uses: azure/setup-kubectl@v2.0
 
