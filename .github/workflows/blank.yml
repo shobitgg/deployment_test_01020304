@@ -1,5 +1,3 @@
-rkflow file for this run
-.github/workflows/build.yml at de77d24
 name: App-MMM/mmm-apm-ui
 
 on:
