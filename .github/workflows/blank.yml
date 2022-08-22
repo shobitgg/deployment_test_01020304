@@ -1,24 +1,6 @@
 name: App-MMM/mmm-apm-ui
 
-on:
-  push:
-    branches:
-    - master
-    - release
-    - release-20*
-    - do-not-merge
-  pull_request:
-    branches:
-    - master
-    - release
-    - release-20*
-
-  workflow_dispatch:
-    inputs:
-      message:
-        description: ''
-        required: false
-        default: ''
+on: [push]
 env:
   AFAAS_DOCKER_REGISTRY: ${{ secrets.AFAAS_DOCKER_REGISTRY }}
   AFAAS_NPM_TOKEN: ${{ secrets.AFAAS_NPM_TOKEN }}
